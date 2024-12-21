@@ -1,0 +1,26 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.title {
+  color: #2c3e50;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  font-family: 'Arial', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 1rem;
+  display: inline-block;
+} 
+
+.bg-grass-pattern {
+  background-image: linear-gradient(45deg, #228B22 25%, transparent 25%, transparent 75%, #228B22 75%, #228B22),
+                    linear-gradient(45deg, #228B22 25%, transparent 25%, transparent 75%, #228B22 75%, #228B22);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+}
