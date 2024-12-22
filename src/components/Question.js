@@ -1,8 +1,8 @@
+// Questions.js
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getQuestionStatistics } from '../utils/statistics';
 import JourneyDashboard from './JourneyDashboard';
 
 // Import all 8 images
@@ -37,9 +37,6 @@ const Questions = ({
 }) => {
   // Local state for the user’s currently selected choice
   const [selectedChoice, setSelectedChoice] = useState(null);
-
-  // Store the statistics returned by getQuestionStatistics(question.id)
-  const [statistics, setStatistics] = useState(null);
 
   // Manage whether the “Quit” confirmation is shown
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
@@ -85,15 +82,14 @@ const Questions = ({
   /**
    * When the user clicks a choice:
    * 1. Store that choice in local state (selectedChoice)
-   * 2. Retrieve statistics from getQuestionStatistics
-   * 3. Show them
    */
   const handleChoiceSelect = (choice) => {
     console.log('[Questions.js] handleChoiceSelect => choice:', choice);
     setSelectedChoice(choice);
-    const stats = getQuestionStatistics(question.id);
-    console.log('[Questions.js] getQuestionStatistics =>', stats);
-    setStatistics(stats);
+    // Removed the statistics retrieval and setting
+    // const stats = getQuestionStatistics(question.id);
+    // console.log('[Questions.js] getQuestionStatistics =>', stats);
+    // setStatistics(stats);
   };
 
   /**
@@ -191,14 +187,15 @@ const Questions = ({
    * The user can then click “Next Question” or “Complete Journey.”
    */
   const renderStatistics = () => {
-    if (!statistics || !selectedChoice) return null;
+    if (!selectedChoice) return null;
 
-    const selectedPercentage = statistics.percentages[selectedChoice.id] || 0;
-    const otherChoices = question.choices.filter((c) => c.id !== selectedChoice.id);
-    const otherPercentages = otherChoices.map((c) => ({
-      id: c.id,
-      percentage: statistics.percentages[c.id] || 0
-    }));
+    // Removed statistics dependencies
+    // const selectedPercentage = statistics.percentages[selectedChoice.id] || 0;
+    // const otherChoices = question.choices.filter((c) => c.id !== selectedChoice.id);
+    // const otherPercentages = otherChoices.map((c) => ({
+    //   id: c.id,
+    //   percentage: statistics.percentages[c.id] || 0
+    // }));
 
     // Pick the relevant analyses based on the choice:
     const isChoiceA = selectedChoice.id === 'a';
@@ -213,55 +210,6 @@ const Questions = ({
         exit={{ opacity: 0, y: 10 }}
         className="mt-8 space-y-6"
       >
-        {/* Selected Choice Stats */}
-        <div className="bg-primary-50 rounded-xl p-6 space-y-4">
-          <div className="text-center">
-            <div className="text-2xl font-semibold text-primary-700">
-              {selectedPercentage}% of participants
-            </div>
-            <div className="text-primary-600">made the same choice as you</div>
-          </div>
-
-          {/* Progress Bars */}
-          <div className="space-y-3">
-            {/* Selected Choice */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium text-primary-700">Your Choice</span>
-                <span className="text-primary-600">{selectedPercentage}%</span>
-              </div>
-              <div className="h-2 bg-primary-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary-600 transition-all duration-500"
-                  style={{ width: `${selectedPercentage}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Other Choices */}
-            {otherPercentages.map(({ id, percentage }) => (
-              <div key={id} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium text-secondary-600">
-                    Option {id.toUpperCase()}
-                  </span>
-                  <span className="text-secondary-500">{percentage}%</span>
-                </div>
-                <div className="h-2 bg-secondary-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-secondary-400 transition-all duration-500"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center text-sm text-secondary-500">
-            Based on {statistics.total} responses
-          </div>
-        </div>
-
         {/* Detailed Insights */}
         <div className="grid gap-6">
           {renderInsightCard("Choice Analysis", choiceAnalysis)}
@@ -385,7 +333,7 @@ const Questions = ({
               })}
             </div>
 
-            {/* Statistics and Insight (once a choice is selected) */}
+            {/* Statistics and Insight (Removed % Participants) */}
             <AnimatePresence>
               {selectedChoice && renderStatistics()}
             </AnimatePresence>
