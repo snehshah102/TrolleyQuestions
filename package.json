@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "set PORT=3001 && webpack serve --mode development",
-    "build": "webpack --mode production ./dist"
+    "build": "react-scripts build && mv build dist"
   },
   "keywords": [],
   "author": "",
