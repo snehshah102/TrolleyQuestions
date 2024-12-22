@@ -1,4 +1,3 @@
-// Questions.js
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
@@ -36,14 +35,22 @@ const Questions = ({
   questionNumber, 
   userAnswers 
 }) => {
+  // Local state for the user’s currently selected choice
   const [selectedChoice, setSelectedChoice] = useState(null);
+
+  // Store the statistics returned by getQuestionStatistics(question.id)
   const [statistics, setStatistics] = useState(null);
+
+  // Manage whether the “Quit” confirmation is shown
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+
+  // If questionNumber === 8 and user clicks “Complete Journey,” show final dashboard
   const [showDashboard, setShowDashboard] = useState(false);
-  
-  // State to manage the modal image
+
+  // For image modal (enlarged image on click)
   const [modalImage, setModalImage] = useState(null);
 
+  // Animations
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -75,46 +82,103 @@ const Questions = ({
     }
   };
 
+  /**
+   * When the user clicks a choice:
+   * 1. Store that choice in local state (selectedChoice)
+   * 2. Retrieve statistics from getQuestionStatistics
+   * 3. Show them
+   */
   const handleChoiceSelect = (choice) => {
+    console.log('[Questions.js] handleChoiceSelect => choice:', choice);
     setSelectedChoice(choice);
     const stats = getQuestionStatistics(question.id);
+    console.log('[Questions.js] getQuestionStatistics =>', stats);
     setStatistics(stats);
   };
 
+  /**
+   * The “Next Question” or “Complete Journey” button calls this.
+   * If this is the last question (#8), show the JourneyDashboard here.
+   * Otherwise, call the parent's onAnswer(selectedChoice), which increments
+   * the parent’s currentQuestionIndex and goes to the next question.
+   */
+  const handleAnswer = () => {
+    console.log('[Questions.js] handleAnswer => selectedChoice:', selectedChoice);
+    if (!selectedChoice) {
+      console.warn('No choice selected yet!');
+      return;
+    }
+
+    if (questionNumber === 8) {
+      console.log('[Questions.js] Last question => showDashboard = true');
+      setShowDashboard(true);
+    } else {
+      console.log('[Questions.js] Not the last question => calling onAnswer');
+      onAnswer(selectedChoice); 
+    }
+  };
+
+  /**
+   * If showDashboard is true, we render the JourneyDashboard
+   * passing along all userAnswers plus the final choice for the 8th question.
+   */
+  if (showDashboard) {
+    return (
+      <JourneyDashboard
+        userAnswers={[
+          ...userAnswers,
+          { questionId: question.id, choiceId: selectedChoice?.id }
+        ]}
+        onRestart={onQuit}  // or a different function if you want
+      />
+    );
+  }
+
+  // If this question is not the currently visible one, render nothing
+  if (!isVisible) return null;
+
+  // Quit Confirmation Overlay
   const renderQuitConfirmation = () => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-    >
-      <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
-        <h3 className="text-2xl font-semibold text-secondary-900 mb-2">
-          Quit Journey?
-        </h3>
-        <p className="text-secondary-600 mb-6">
-          Are you sure you want to return to the start screen?
-        </p>
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => setShowQuitConfirm(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            className="flex-1"
-            onClick={onQuit}
-          >
-            Quit
-          </Button>
-        </div>
-      </div>
-    </motion.div>
+    <AnimatePresence>
+      {showQuitConfirm && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        >
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+            <h3 className="text-2xl font-semibold text-secondary-900 mb-2">
+              Quit Journey?
+            </h3>
+            <p className="text-secondary-600 mb-6">
+              Are you sure you want to return to the start screen?
+            </p>
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowQuitConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={onQuit}
+              >
+                Quit
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 
+  /**
+   * Helper to render a simple insight card
+   */
   const renderInsightCard = (title, content) => (
     <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 space-y-3 border border-primary-100">
       <h4 className="text-lg font-semibold text-primary-700">{title}</h4>
@@ -123,17 +187,9 @@ const Questions = ({
   );
 
   /**
-   * If questionNumber === 8, we set showDashboard to true, which triggers the JourneyDashboard.
-   * We then pass userAnswers + the *final question's choice* into JourneyDashboard.
+   * Once the user selects a choice, we show stats/analysis via this function.
+   * The user can then click “Next Question” or “Complete Journey.”
    */
-  const handleAnswer = () => {
-    if (questionNumber === 8) {
-      setShowDashboard(true);
-    } else {
-      onAnswer(selectedChoice);
-    }
-  };
-
   const renderStatistics = () => {
     if (!statistics || !selectedChoice) return null;
 
@@ -144,7 +200,7 @@ const Questions = ({
       percentage: statistics.percentages[c.id] || 0
     }));
 
-    // Determine the analysis texts based on the selected choice
+    // Pick the relevant analyses based on the choice:
     const isChoiceA = selectedChoice.id === 'a';
     const choiceAnalysis = isChoiceA ? question.analysisA : question.analysisB;
     const otherPerspective = isChoiceA ? question.analysisB : question.analysisA;
@@ -154,6 +210,7 @@ const Questions = ({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
         className="mt-8 space-y-6"
       >
         {/* Selected Choice Stats */}
@@ -222,6 +279,7 @@ const Questions = ({
           >
             Quit
           </Button>
+
           <Button
             size="lg"
             className="px-8 shadow-lg hover:shadow-xl"
@@ -242,26 +300,8 @@ const Questions = ({
           </Button>
         </div>
       </motion.div>
-    ); // Corrected closing parenthesis
-  }; // Corrected closing brace
-
-  /**
-   * This returns the final Journey Dashboard if the 8th question is answered.
-   * Note: The key fix is changing 'questionid' to 'questionId'.
-   */
-  if (showDashboard) {
-    return (
-      <JourneyDashboard
-        userAnswers={[
-          ...userAnswers,
-          { questionId: question.id, choiceId: selectedChoice?.id }
-        ]}
-        onRestart={onQuit}
-      />
     );
-  }
-
-  if (!isVisible) return null;
+  };
 
   return (
     <>
@@ -293,59 +333,64 @@ const Questions = ({
                 src={images[question.id]} 
                 alt={`Journey Illustration for Question ${question.id}`} 
                 className="object-cover w-full h-full rounded-xl shadow-lg cursor-pointer"
-                onClick={() => setModalImage(images[question.id])} // Open modal on click
-                onError={(e) => { e.target.src = '/images/default.jpg'; }} // Fallback image
+                onClick={() => setModalImage(images[question.id])} 
+                onError={(e) => { e.target.src = '/images/default.jpg'; }} // Fallback
               />
             </div>
 
             {/* Choices */}
             <div className="grid gap-6 max-w-3xl mx-auto">
-              {question.choices.map((choice, index) => (
-                <motion.div
-                  key={choice.id}
-                  variants={buttonVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                >
-                  <Button
-                    variant={selectedChoice?.id === choice.id ? 'primary' : 'outline'}
-                    size="lg"
-                    className={`
-                      w-full text-left justify-start h-auto py-6 px-8
-                      ${
-                        selectedChoice?.id === choice.id
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-white hover:bg-primary-50 text-secondary-900 border-2 border-secondary-200'
-                      }
-                    `}
-                    onClick={() => handleChoiceSelect(choice)}
-                    disabled={selectedChoice !== null}
+              {question.choices.map((choice, index) => {
+                const isSelected = selectedChoice?.id === choice.id;
+                return (
+                  <motion.div
+                    key={choice.id}
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
                   >
-                    <span className="flex items-start gap-6">
-                      <span
-                        className={`
-                          inline-flex items-center justify-center w-10 h-10 rounded-full
-                          ${
-                            selectedChoice?.id === choice.id
-                              ? 'bg-white/20 text-white'
-                              : 'bg-primary-50 text-primary-700'
-                          }
-                          text-lg font-semibold shrink-0
-                        `}
-                      >
-                        {String.fromCharCode(65 + index)}
+                    <Button
+                      variant={isSelected ? 'primary' : 'outline'}
+                      size="lg"
+                      className={`
+                        w-full text-left justify-start h-auto py-6 px-8
+                        ${
+                          isSelected
+                            ? 'bg-primary-500 text-white'
+                            : 'bg-white hover:bg-primary-50 text-secondary-900 border-2 border-secondary-200'
+                        }
+                      `}
+                      onClick={() => handleChoiceSelect(choice)}
+                      disabled={selectedChoice !== null}
+                    >
+                      <span className="flex items-start gap-6">
+                        <span
+                          className={`
+                            inline-flex items-center justify-center w-10 h-10 rounded-full
+                            ${
+                              isSelected
+                                ? 'bg-white/20 text-white'
+                                : 'bg-primary-50 text-primary-700'
+                            }
+                            text-lg font-semibold shrink-0
+                          `}
+                        >
+                          {String.fromCharCode(65 + index)}
+                        </span>
+                        <span className="text-xl leading-relaxed">{choice.text}</span>
                       </span>
-                      <span className="text-xl leading-relaxed">{choice.text}</span>
-                    </span>
-                  </Button>
-                </motion.div>
-              ))}
+                    </Button>
+                  </motion.div>
+                );
+              })}
             </div>
 
-            {/* Statistics and Insight */}
-            <AnimatePresence>{selectedChoice && renderStatistics()}</AnimatePresence>
+            {/* Statistics and Insight (once a choice is selected) */}
+            <AnimatePresence>
+              {selectedChoice && renderStatistics()}
+            </AnimatePresence>
 
-            {/* Philosophical Context */}
+            {/* Philosophical Context (before a choice is selected) */}
             {!selectedChoice && (
               <div className="max-w-2xl mx-auto text-center">
                 <p className="text-lg text-secondary-500 italic leading-relaxed">
@@ -354,7 +399,7 @@ const Questions = ({
               </div>
             )}
 
-            {/* Quit Button (before selection) */}
+            {/* Quit Button (only show if no choice selected yet) */}
             {!selectedChoice && (
               <div className="flex justify-center">
                 <Button
@@ -372,7 +417,7 @@ const Questions = ({
       </motion.div>
 
       {/* Quit Confirmation Modal */}
-      <AnimatePresence>{showQuitConfirm && renderQuitConfirmation()}</AnimatePresence>
+      {renderQuitConfirmation()}
 
       {/* Image Modal */}
       <AnimatePresence>
@@ -382,14 +427,14 @@ const Questions = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
-            onClick={() => setModalImage(null)} // Close modal when clicking outside the image
+            onClick={() => setModalImage(null)}
           >
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}
               className="relative"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image
+              onClick={(e) => e.stopPropagation()} // prevent closing when clicking the image
             >
               {/* Close Button */}
               <button
@@ -399,11 +444,11 @@ const Questions = ({
               >
                 &times;
               </button>
-              
+
               {/* Full-Sized Image */}
               <img 
                 src={modalImage} 
-                alt="Full Size" 
+                alt="Enlarged" 
                 className="max-w-full max-h-screen rounded-xl shadow-lg"
               />
             </motion.div>
