@@ -2,7 +2,7 @@ export const trolleyQuestions = [
   {
     id: 1,
     title: "Trends vs GPA",
-    scenario: "Would you give up being on the latest trends (social media, stocks, news, gaming, etc…) if it meant raising your gpa by 0.5? (L1)", // If you need an extra scenario text, put it here. Otherwise leave empty."
+    scenario: "Would you give up being on the latest trends (social media, stocks, news, gaming, etc…) if it meant raising your gpa by 0.5?", // If you need an extra scenario text, put it here. Otherwise leave empty."
     choices: [
       {
         id: "a",
@@ -23,7 +23,7 @@ export const trolleyQuestions = [
   {
     id: 2,
     title: "Experience vs Time",
-    scenario: "Would you sacrifice 1 year of your life if it gave you 5 years worth of experience from someone else’s life? (L1)",
+    scenario: "Would you sacrifice 1 year of your life if it gave you 5 years worth of experience from someone else’s life?",
     choices: [
       {
         id: "a",
@@ -44,7 +44,7 @@ export const trolleyQuestions = [
   {
     id: 3,
     title: "Admiration vs Self-Love",
-    scenario: "Would you rather be someone everyone admires but you don’t like the person you are or someone who loves themself but is constantly judged for their actions? (L2)",
+    scenario: "Would you rather be someone everyone admires but you don’t like the person you are or someone who loves themself but is constantly judged for their actions?",
     choices: [
       {
         id: "a",
@@ -65,7 +65,7 @@ export const trolleyQuestions = [
   {
     id: 4,
     title: "Emotions vs Control",
-    scenario: "Would you rather have complete control over your emotions but feel detached from others, or let your emotions run wild, making every moment feel intense and real but unpredictable? (L2)",
+    scenario: "Would you rather have complete control over your emotions but feel detached from others, or let your emotions run wild, making every moment feel intense and real but unpredictable?",
     choices: [
       {
         id: "a",
@@ -86,7 +86,7 @@ export const trolleyQuestions = [
   {
     id: 5,
     title: "Fun vs Support",
-    scenario: "Would you rather only have one friend who’s always there for fun, but disappears when you need support, or only one friend who is always supportive but hard to have fun with? (L3)",
+    scenario: "Would you rather only have one friend who’s always there for fun, but disappears when you need support, or only one friend who is always supportive but hard to have fun with?",
     choices: [
       {
         id: "a",
@@ -107,7 +107,7 @@ export const trolleyQuestions = [
   {
     id: 6,
     title: "Fulfill vs Sacrifice",
-    scenario: "You get the opportunity to fulfill your dreams but someone you love will never be able to fulfill theirs—would you do it? (L3)",
+    scenario: "You get the opportunity to fulfill your dreams but someone you love will never be able to fulfill theirs—would you do it?",
     choices: [
       {
         id: "a",
@@ -128,7 +128,7 @@ export const trolleyQuestions = [
   {
     id: 7,
     title: "Memory vs Life",
-    scenario: "Would you rather your parents lose 10 years of their life or lose all memory of you? (L3)",
+    scenario: "Would you rather your parents lose 10 years of their life or lose all memory of you?",
     choices: [
       {
         id: "a",
@@ -149,7 +149,7 @@ export const trolleyQuestions = [
   {
     id: 8,
     title: "Mobile vs Guruji Private One-on-One",
-    scenario: "Would you go a week without your mobile device if in return Guruji answers any questions you have in a private one-on-one? (L1)",
+    scenario: "Would you go a week without your mobile device if in return Guruji answers any questions you have in a private one-on-one?",
     choices: [
       {
         id: "a",
