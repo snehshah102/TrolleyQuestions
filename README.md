@@ -45,6 +45,10 @@ yarn start
 ```
 Open http://localhost:3000 to view the application in your browser.
 
+or 
+
+Website: https://findyourcompass.netlify.app/
+
 🛠️ Usage
 Start Your Journey: Click on the "Begin Your Journey" button on the intro screen to begin answering the ethical questions.
 - Answer Questions: Select your preferred choice for each dilemma to progress.
